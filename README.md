@@ -9,11 +9,8 @@ A Python script that scrapes free proxies from multiple sources, checks their va
 
 - Scrapes proxies from **7+ sources** simultaneously
 - Multi-threaded validation with configurable workers
-- Real-time colorful console output with emojis 🎨
 - Automatic duplicate removal
 - Latency measurement for valid proxies ⏱️
-- Detailed statistics and success rates 📊
-- Configurable timeouts and test URL
 - Lightweight and easy to modify
 
 ## Scraped Sources 🌐
