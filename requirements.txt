@@ -1,5 +1,7 @@
-requests==2.31.0
-beautifulsoup4==4.12.3
+beautifulsoup4==4.13.0
 colorama==0.4.6
-termcolor==1.1.0
-
+Crawl4AI==0.4.247
+playwright==1.49.1
+python-dotenv==1.0.1
+Requests==2.32.3
+termcolor==2.5.0
