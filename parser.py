@@ -87,55 +87,55 @@ class ArticleScraper:
             "required": ["title", "content"]
         }
 
-    instruction = """
-        Extract structured article information as a SINGLE JSON OBJECT. Follow these rules:
+        self.instruction = """
+            Extract structured article information as a SINGLE JSON OBJECT. Follow these rules:
 
-        1. Main Content:
-        - Title: The main article title
-        - Publish Date: In ISO 8601 format (YYYY-MM-DD)
-        - Content: Full text with paragraphs preserved
+            1. Main Content:
+            - Title: The main article title
+            - Publish Date: In ISO 8601 format (YYYY-MM-DD)
+            - Content: Full text with paragraphs preserved
 
-        2. Images:
-        - For each image:
-            * URL: Direct image source URL
-            * Description: Based on alt text, caption, or surrounding context
-            * Caption: Exact caption text if present
+            2. Images:
+            - For each image:
+                * URL: Direct image source URL
+                * Description: Based on alt text, caption, or surrounding context
+                * Caption: Exact caption text if present
 
-        3. Embeds:
-        - Identify embedded content from: YouTube, Twitter, Instagram, TikTok
-        - For each embed:
-            * Platform: Social media platform name
-            * URL: Direct link to original content
-            * Embed Code: Full iframe/embed code if available
-            * Description: Context from surrounding text explaining the embed
+            3. Embeds:
+            - Identify embedded content from: YouTube, Twitter, Instagram, TikTok
+            - For each embed:
+                * Platform: Social media platform name
+                * URL: Direct link to original content
+                * Embed Code: Full iframe/embed code if available
+                * Description: Context from surrounding text explaining the embed
 
-        4. Formatting:
-        - Preserve original language and formatting
-        - Exclude ads, comments, and non-article content
-        - Maintain chronological order of content elements
+            4. Formatting:
+            - Preserve original language and formatting
+            - Exclude ads, comments, and non-article content
+            - Maintain chronological order of content elements
 
-        Example output format:
-        {
-            "title": "Article Title",
-            "publish_date": "2023-12-31",
-            "content": "Full article text...",
-            "images": [
-                {
-                "url": "https://example.com/image1.jpg",
-                "description": "A group of people working in a modern office",
-                "caption": "Our team collaborating on new projects"
-                }
-            ],
-            "embeds": [
-                {
-                "platform": "youtube",
-                "url": "https://youtube.com/watch?v=XYZ123",
-                "embed_code": "<iframe...></iframe>",
-                "description": "Video tutorial demonstrating the new features"
-                }
-            ]
-        }
-    """
+            Example output format:
+            {
+                "title": "Article Title",
+                "publish_date": "2023-12-31",
+                "content": "Full article text...",
+                "images": [
+                    {
+                    "url": "https://example.com/image1.jpg",
+                    "description": "A group of people working in a modern office",
+                    "caption": "Our team collaborating on new projects"
+                    }
+                ],
+                "embeds": [
+                    {
+                    "platform": "youtube",
+                    "url": "https://youtube.com/watch?v=XYZ123",
+                    "embed_code": "<iframe...></iframe>",
+                    "description": "Video tutorial demonstrating the new features"
+                    }
+                ]
+            }
+        """
 
     async def scrape_article(self, url: str) -> Dict[str, Any]:
         """Extract article content with proxy rotation and retries"""
@@ -160,13 +160,7 @@ class ArticleScraper:
                     schema=self.article_schema,
                     extraction_type="schema",
                     verbose=False,
-                    instruction="""
-                    Extract structured article information as a SINGLE JSON OBJECT. Rules:
-                    1. Main article title
-                    2. Publish date in ISO 8601
-                    3. Full content with paragraphs
-                    4. Relevant image URLs only
-                    """,
+                    instruction=self.instruction,
                     chunk_token_threshold=3000,
                     overlap_rate=0.1,
                     extra_args={
@@ -234,12 +228,12 @@ class ArticleScraper:
 
             except (json.JSONDecodeError, ValueError, TypeError) as e:
                 last_error = e
-                print(colored(f"\n⚠️  Data parsing error:", "yellow"))
+                print(colored("\n⚠️  Data parsing error:", "yellow"))
                 print(
                     f"   {Fore.YELLOW}Details:{Style.RESET_ALL} {str(e)[:120]}...")
             except Exception as e:
                 last_error = e
-                print(colored(f"\n⚠️  Unexpected error:", "yellow"))
+                print(colored("\n⚠️  Unexpected error:", "yellow"))
                 print(
                     f"   {Fore.YELLOW}Details:{Style.RESET_ALL} {str(e)[:120]}...")
 
@@ -302,7 +296,8 @@ async def main():
                         help="Max retry attempts")
     args = parser.parse_args()
 
-    print("\n" + colored(" ARTICLE SCRAPER ", "white", "on_blue", attrs=["bold"]))
+    print("\n" + colored(" ARTICLE SCRAPER ",
+          "white", "on_blue", attrs=["bold"]))
     print(colored(f"🔗 Target URL: {args.url}", "cyan"))
     print(colored(f"♻️  Max retries: {args.retries}", "cyan"))
     print(colored(f"🔒 Proxy file: {args.proxy_file or 'none'}\n", "cyan"))
@@ -319,7 +314,8 @@ async def main():
         if isinstance(result, dict):
             if "error" in result and isinstance(result["error"], str):
                 print(colored("\n⛔️ Extraction Failed", "red", attrs=["bold"]))
-                print(f"{Fore.YELLOW}Error:{Style.RESET_ALL} {result['error'][:200]}...")
+                print(
+                    f"{Fore.YELLOW}Error:{Style.RESET_ALL} {result['error'][:200]}...")
             else:
                 print_success(result)  # Changed from self._print_success
         else:
@@ -333,13 +329,18 @@ async def main():
 
 # Add this standalone function outside any class
 def print_success(result: dict):
-    print("\n" + colored(" SUCCESSFUL EXTRACTION ", "white", "on_green", attrs=["bold"]))
-    print(colored(f"📌 Title: ", "cyan") + f"{result.get('title', 'N/A')}")
-    print(colored(f"📅 Date: ", "cyan") + f"{result.get('publish_date', 'Unknown')}")
-    print(colored(f"📝 Content Preview: ", "cyan") + f"{result.get('content', '')[:200]}...")
-    print(colored(f"🖼 Images Found: ", "cyan") + f"{len(result.get('images', []))}")
+    print("\n" + colored(" SUCCESSFUL EXTRACTION ",
+          "white", "on_green", attrs=["bold"]))
+    print(colored("📌 Title: ", "cyan") + f"{result.get('title', 'N/A')}")
+    print(colored("📅 Date: ", "cyan") +
+          f"{result.get('publish_date', 'Unknown')}")
+    print(colored("📝 Content Preview: ", "cyan") +
+          f"{result.get('content', '')[:200]}...")
+    print(colored("🖼 Images Found: ", "cyan") +
+          f"{len(result.get('images', []))}")
     print("\n" + "━" * 50)
 
 
 if __name__ == "__main__":
+    asyncio.run(main())
     asyncio.run(main())
